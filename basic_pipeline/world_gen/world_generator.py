@@ -1,7 +1,10 @@
 # Midpoint Displacement + Cellular Automata
 import numpy as np
 import random
-from ascii_tile import ASCIITile, water_tile, mountain_tile, plains_tile, forest_tile, pines_tile, lava_tile, snow_tile
+from ascii_tile import ASCIITile, water_tile, mountain_tile, plains_tile, desert_tile, forest_tile, pines_tile, lava_tile, snow_tile
+
+from biome_mask import create_biome_mask, print_mask
+from diamond_square import generate_heightmap_w_biome_mask
 
 
 
@@ -22,42 +25,18 @@ TERRAIN_CHARS = {
     "mountains": "^"
 }
 
+EXTRA_SMALL_MAP = 9 # n = 3
+SMALL_MAP = 17 # n = 4
+MEDIUM_MAP = 33 # n = 5
+LARGE_MAP = 65 # n = 6
+EXTRA_LARGE_MAP = 129 # n = 7
+
 class WorldGenerator():
     
-    # Generates a heightmap using the Diamond Square algorithim
-    def generate_heightmap(self, size, roughness):
-        grid = np.zeros((size, size))
-        grid[0, 0] = grid[0, -1] = grid[-1, 0] = grid[-1, -1] = random.uniform(0, 1)
-
-        # Get the displacement value for the midpoint.
-        def displace(x1, y1, x2, y2, variance):
-            mid_x, mid_y = (x1 + x2) // 2, (y1 + y2) // 2  # Recall // is int division
-            if grid[mid_x, mid_y] == 0: # If unitiialized (this is what 0 means)... displace it.
-                grid[mid_x, mid_y] = (grid[x1, y1] + grid[x2, y2]) / 2 + random.uniform(-variance, variance)
-
-        step = size - 1 # start big, then get smaller.
-        iteration_num = 1
-        while step > 1:
-            half = step // 2
-            variance = roughness * step / size
-            
-            # Square step
-            for x in range(0, size - 1, step):
-                for y in range(0, size - 1, step):
-                    displace(x, y, x + step, y + step, variance)
-
-            # Diamond step
-            for x in range(0, size, half):
-                for y in range((x + half) % step, size, step):
-                    avg = np.mean([grid[(x - half) % size, y], grid[(x + half) % size, y],
-                                grid[x, (y - half) % size], grid[x, (y + half) % size]])
-                    grid[x, y] = avg + random.uniform(-variance, variance)
-
-            step //= 2
-            iteration_num += 1
-
-        return grid
-
+    def __init__(self, map_size, roughness=0.5):
+        self.map_size = map_size
+        self.base_roughness = roughness
+ 
     def heightmap_to_ascii(self, grid):
         """Converts heightmap values into ASCII terrain tiles."""
         ascii_map = []
@@ -67,10 +46,12 @@ class WorldGenerator():
                 if val < 0.2:
                     line.append(water_tile)
                 elif val < 0.5:
-                    line.append(plains_tile)
+                    line.append(desert_tile)
                 elif val < 0.7:
+                    line.append(plains_tile)
+                elif val < 1.2:
                     line.append(pines_tile)
-                elif val < 0.8:
+                elif val < 1.9:
                     line.append(mountain_tile)
                 else:
                     line.append(snow_tile)
@@ -78,7 +59,7 @@ class WorldGenerator():
         return ascii_map
 
     # TODO: Adjust these default vals & get a better understanding of what they do
-    def create_world(self, size=33, roughness=0.5):
+    def create_world(self, size=9, roughness=0.5):
         # Generate ASCII World
         
         # PRE-PROCESSING (Pre-Heightmap)
@@ -86,24 +67,36 @@ class WorldGenerator():
         
         # Set global world parameters & and biome frequencies, then set explitly defined biomes 
         
+        print("Creating biome mask")
+        print("Using sample params... delete these later")
+        user_params = {'north': 'desert',
+                'south': 'mountains',
+                'center': 'forest'}
+        biome_mask = create_biome_mask(size, user_params)
+        
+        print("Printing biome mask")
+        print_mask(biome_mask)
         
         # HEIGHTMAP GENERATION
         # ======================
         
-        # 1 - Generate the height map
-        heightmap = self.generate_heightmap(size, roughness)
+        # 1 - Generate the height map wrt the biome mask
+        # heightmap = self.generate_heightmap(roughness)
+        heightmap = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness)
         
-        # TODO: move this to the end
-
+        for row in heightmap:
+            print("".join("{:.1f}, ".format(val) for val in row))
+        
         # PRE-PROCESSING (Post-Heightmap)
         # ===============================
         
         
         # POST-PROCESSING
         # ======================
-        # TODO
+        # TODO: Add post processing rules
         # Enforce generation rules via cellular autonoma 
         # & perlin noise
+        
         
         # ASCII RENDERING
         # ======================
@@ -125,7 +118,7 @@ class WorldGenerator():
 # Call this file from the cmd line only when testing. Otherwise, 
 # call pygame_main.py for the full UI display.
 if __name__ == "__main__":
-    world_map = WorldGenerator() 
+    world_map = WorldGenerator(EXTRA_SMALL_MAP) 
     world_map.create_world()
     print("\033[38;5;196mBright red text\033[0m") # ANSI Color Test
     print("\033[38;2;255;100;0mOrange text\033[0m") # RGC Color Test

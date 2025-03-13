@@ -43,10 +43,8 @@ def print_mask(mask):
         # print("".join(str(cell) for cell in row))
             
 def create_biome_mask(size, user_params):
-    
-    # mask = np.full((size, size), 'plains', dtype=object)
-    
     # Plains is the default biome
+    # mask = np.full((size, size), 'plains', dtype=object)
     mask = np.full((size, size), biome_dict['plains'], dtype=object)
     
     print(f"Creating a biome mask with the following items: ", user_params.items())
@@ -79,8 +77,7 @@ def create_biome_mask(size, user_params):
             print("Invalid region provided: ", region)
             return None
         
-    return mask
-            
+    return mask 
         
         
 if __name__ == "__main__":
@@ -95,6 +92,7 @@ if __name__ == "__main__":
                    'center': 'forest'}
     b_mask = create_biome_mask(SMALL_MAP, user_params)
     print_mask(b_mask)
+    print(Biome(1))
     
     
             

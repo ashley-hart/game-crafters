@@ -74,8 +74,8 @@ window.fill(background_color)
 
 # Init & Create map
 # TODO: Pass in any settings for the map from the cmd line or future UI here.
-map_generator = WorldGenerator()
-ascii_map = map_generator.create_world(size=MEDIUM_MAP, roughness=1)
+map_generator = WorldGenerator(MEDIUM_MAP)
+ascii_map = map_generator.create_world(roughness=1)
 
 # Game Loop, running kicks off the loop and sustains it until QUIT event.
 running = True

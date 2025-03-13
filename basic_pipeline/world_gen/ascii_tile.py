@@ -20,6 +20,7 @@ class ASCIITile:
 default_tiles = {}
 
 plains_tile = ASCIITile(".", ANSI_YELLOW)
+desert_tile = ASCIITile("*", ANSI_YELLOW)
 forest_tile = ASCIITile("8", ANSI_GREEN)
 pines_tile = ASCIITile("Y", ANSI_GREEN)
 mountain_tile = ASCIITile("M", ANSI_GRAY)
