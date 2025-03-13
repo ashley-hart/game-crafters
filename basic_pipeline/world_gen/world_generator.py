@@ -84,7 +84,7 @@ class WorldGenerator():
         # PRE-PROCESSING (Pre-Heightmap)
         # ===============================
         
-        # Set global world parameters & biome frequencies
+        # Set global world parameters & and biome frequencies, then set explitly defined biomes 
         
         
         # HEIGHTMAP GENERATION
