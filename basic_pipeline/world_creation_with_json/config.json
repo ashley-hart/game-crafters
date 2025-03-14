@@ -1,0 +1,117 @@
+{
+  "world": {
+    "width": 200,
+    "height": 80,
+    "min_river_length": 3
+  },
+  "screen": {
+    "width": 200,
+    "height": 80
+  },
+  "civilizations": {
+    "civilized": 2,
+    "tribal": 2,
+    "max_sites": 20,
+    "expansion_distance": 10,
+    "war_distance": 8
+  },
+  "world_gen": {
+    "main_hills": [
+      { "x": 25, "y": 20, "size": 14, "height": 8 },
+      { "x": 50, "y": 30, "size": 15, "height": 9 }
+    ],
+    "small_hills": [
+      { "x": 10, "y": 10, "size": 3, "height": 7 },
+      { "x": 15, "y": 15, "size": 4, "height": 6 }
+    ],
+    "simplex_noise": {
+      "parameters": {
+        "octaves": 6,
+        "frequency": 6,
+        "lacunarity": 32,
+        "gain": 1
+      }
+    },
+    "pole_generation": {
+      "south": {
+        "rng_values": [2, 3, 4, 3, 2, 3, 4, 3],
+        "fixed_value": 0.31
+      },
+      "north": {
+        "rng_values": [2, 3, 4, 3, 2, 3, 4, 3],
+        "fixed_value": 0.31
+      }
+    },
+    "tectonic": {
+      "horizontal": {
+        "position": 40,
+        "variation": [0]
+      },
+      "vertical": {
+        "position": 100,
+        "variation": [0]
+      },
+      "hill_size": 3,
+      "hill_height": 0.15
+    },
+    "erosion": {
+      "coefficient": 0.07
+    },
+    "river": {
+      "start_x": 100,
+      "start_y": 10
+    }
+  },
+  "precipitation": {
+    "offset": 2,
+    "noise_parameters": {
+      "scale": [2, 2],
+      "octaves": 32,
+      "gain": 1
+    }
+  },
+  "drainage": {
+    "noise_parameters": {
+      "scale": [2, 2],
+      "octaves": 32,
+      "gain": 1
+    }
+  },
+  "flag_templates": {
+    "background": "Background.txt",
+    "overlay": "Overlay.txt",
+    "background_choice": 1,
+    "overlay_choice": 1,
+    "back_color2_index": 1,
+    "over_color1_index": 2,
+    "over_color2_index": 3
+  },
+  "civilizations_config": {
+    "civilized": {
+      "name_suffix": "Civilization",
+      "color": "#FF2D21",
+      "race_index": 0,
+      "government_index": 0,
+      "initial_site_index": 0,
+      "new_site_index": 0
+    },
+    "tribal": {
+      "name_suffix": "Tribe",
+      "government": {
+        "name": "Tribal",
+        "description": "*PLACE HOLDER*",
+        "aggressiveness": 2,
+        "militarization": 50,
+        "tech_bonus": 0
+      },
+      "color": "#00FF00",
+      "race_index": 0,
+      "initial_site_index": 0,
+      "new_site_index": 0
+    }
+  },
+  "names": {
+    "civilized": ["Alpha", "Beta"],
+    "tribal": ["Gamma", "Delta"]
+  }
+}
