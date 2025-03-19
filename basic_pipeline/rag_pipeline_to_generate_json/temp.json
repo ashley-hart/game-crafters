@@ -1,0 +1,47 @@
+{
+    "simplex_noise": {
+      "parameters": {
+        "octaves": 8,
+        "frequency": 4,
+        "lacunarity": 20,
+        "gain": 1.5
+      }
+    },
+    "tectonic": {
+      "horizontal": {
+        "position": 60,
+        "variation": [
+          2,
+          3,
+          4,
+          3,
+          4,
+          3,
+          4,
+          3
+        ]
+      },
+      "vertical": {
+        "position": 100,
+        "variation": [
+          2,
+          3,
+          4,
+          3,
+          4,
+          3,
+          4,
+          3
+        ]
+      },
+      "hill_size": 6,
+      "hill_height": 0.3
+    },
+    "river": {
+      "start_x": 50,
+      "start_y": 20,
+      "num_branches": 3,
+      "branch_length": 80,
+      "branch_spacing": 20
+    }
+  }
