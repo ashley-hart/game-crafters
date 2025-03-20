@@ -19,12 +19,16 @@ class ASCIITile:
 # TODO: Store the tiles below in a dict that can be imported.      
 default_tiles = {}
 
-plains_tile = ASCIITile(".", ANSI_YELLOW)
-desert_tile = ASCIITile("*", ANSI_YELLOW)
+plains_tile = ASCIITile("\"", ANSI_YELLOW)
+# desert_tile = ASCIITile("▒", ANSI_YELLOW)
+desert_tile = ASCIITile(".", ANSI_YELLOW)
 forest_tile = ASCIITile("8", ANSI_GREEN)
-pines_tile = ASCIITile("Y", ANSI_GREEN)
+pines_tile = ASCIITile("T", ANSI_GREEN)
 mountain_tile = ASCIITile("M", ANSI_GRAY)
 snow_tile = ASCIITile("s", ANSI_WHITE)
-lava_tile = ASCIITile("n", ANSI_RED)
+lava_tile = ASCIITile("l", ANSI_RED)
 water_tile = ASCIITile("~", ANSI_CYAN)
+
+# note, it would be nice to have flowers be a set of random colors. 
+flower_tile = ASCIITile("*", ANSI_MAGENTA) 
         

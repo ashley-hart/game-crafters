@@ -4,18 +4,9 @@ import random
 from ascii_tile import ASCIITile, water_tile, mountain_tile, plains_tile, desert_tile, forest_tile, pines_tile, lava_tile, snow_tile
 
 from biome_mask import create_biome_mask, print_mask
-from diamond_square import generate_heightmap_w_biome_mask
-
-
-
-'''
-LEARNING RESOURCES:
-    - Midpoint Displacement Article: https://stevelosh.com/blog/2016/02/midpoint-displacement/
-    - Cellular Autonoma 
-    - Perlin Noise
-    
-    * Using MD for heightmap and biome assignment and CA for biome smoothing. 
-'''
+from diamond_square import generate_heightmap_w_biome_mask, smooth_biome_transitions
+from utility_methods import print_grid
+from world_config import DisplayMode, MapSizes
 
 # ASCII terrain mapping
 TERRAIN_CHARS = {
@@ -25,18 +16,18 @@ TERRAIN_CHARS = {
     "mountains": "^"
 }
 
-EXTRA_SMALL_MAP = 9 # n = 3
-SMALL_MAP = 17 # n = 4
-MEDIUM_MAP = 33 # n = 5
-LARGE_MAP = 65 # n = 6
-EXTRA_LARGE_MAP = 129 # n = 7
-
 class WorldGenerator():
     
-    def __init__(self, map_size, roughness=0.5):
-        self.map_size = map_size
+    def __init__(self, map_size, user_params, roughness=0.5, display_mode=DisplayMode.ASCII_MODE):
+        self.map_size = map_size.value
         self.base_roughness = roughness
+        self.user_params = user_params
+        self.display_mode = display_mode
+        
+        print(f"Creating a world with dimensions: {self.map_size}x{self.map_size}")
+        print(f"Creating a world with user_params: {self.user_params}")
  
+    # TODO: Move this to a map renderer class.
     def heightmap_to_ascii(self, grid):
         """Converts heightmap values into ASCII terrain tiles."""
         ascii_map = []
@@ -59,50 +50,52 @@ class WorldGenerator():
         return ascii_map
 
     # TODO: Adjust these default vals & get a better understanding of what they do
-    def create_world(self, size=9, roughness=0.5):
+    def create_world(self, roughness=0.5):
         # Generate ASCII World
         
         # PRE-PROCESSING (Pre-Heightmap)
         # ===============================
         
-        # Set global world parameters & and biome frequencies, then set explitly defined biomes 
+        # TODO: Set global world parameters & and biome frequencies, then set explitly defined biomes 
         
         print("Creating biome mask")
         print("Using sample params... delete these later")
-        user_params = {'north': 'desert',
-                'south': 'mountains',
-                'center': 'forest'}
-        biome_mask = create_biome_mask(size, user_params)
+        biome_mask = create_biome_mask(self.map_size, self.user_params)
         
         print("Printing biome mask")
-        print_mask(biome_mask)
+        print_grid(biome_mask)
         
         # HEIGHTMAP GENERATION
         # ======================
         
         # 1 - Generate the height map wrt the biome mask
         # heightmap = self.generate_heightmap(roughness)
-        heightmap = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness)
         
-        for row in heightmap:
+        print("Generating heightmap w/ biome mask")
+        height_map = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness)
+        print_grid(height_map)
+        
+        for row in height_map:
             print("".join("{:.1f}, ".format(val) for val in row))
         
         # PRE-PROCESSING (Post-Heightmap)
         # ===============================
-        
+        print("Smoothing heightmap for nicer biome transitions")
+        smoothed_hm = smooth_biome_transitions(biome_mask, height_map)
+        print_grid(smoothed_hm)
+
         
         # POST-PROCESSING
         # ======================
-        # TODO: Add post processing rules
+        # TODO: Add post processing rules, I'll do this after the pipeline has been prototyped
         # Enforce generation rules via cellular autonoma 
         # & perlin noise
         
         
         # ASCII RENDERING
         # ======================
-        
         # Map heightmap values to ASCII chars
-        ascii_world = self.heightmap_to_ascii(heightmap)
+        ascii_world = self.heightmap_to_ascii(smoothed_hm)
         
         # TODO: Add map frame
 
@@ -118,9 +111,16 @@ class WorldGenerator():
 # Call this file from the cmd line only when testing. Otherwise, 
 # call pygame_main.py for the full UI display.
 if __name__ == "__main__":
-    world_map = WorldGenerator(EXTRA_SMALL_MAP) 
+    print("\033[38;2;64;244;208m World Generator\033[0m") # RGC Color Test
+    print("\033[38;2;64;244;208m=================\033[0m") # RGC Color Test
+    
+    # user_params = {'north': 'desert',
+    #             'south': 'mountains',
+    #             'center': 'forest'}
+    user_params = {'north': 'water',
+                'south': 'mountains',
+                'center': 'water'}
+    world_map = WorldGenerator(MapSizes.SMALL_MAP, user_params) 
     world_map.create_world()
-    print("\033[38;5;196mBright red text\033[0m") # ANSI Color Test
-    print("\033[38;2;255;100;0mOrange text\033[0m") # RGC Color Test
-
+    
     

@@ -1,34 +1,11 @@
+import numpy as np
+from world_config import MapSizes, Biome, biome_dict
+from utility_methods import print_grid
+    
+# ! Do I even need this class?
 # Creating biome masks to be used by the world  
 # generator as a preprocessing step.
-
-from enum import Enum
-import numpy as np
-# from pygame_main import SMALL_MAP, MEDIUM_MAP, LARGE_MAP
-EXTRA_SMALL_MAP = 9 # n = 3
-SMALL_MAP = 17 # n = 4
-MEDIUM_MAP = 33 # n = 5
-LARGE_MAP = 65 # n = 6
-EXTRA_LARGE_MAP = 129 # n = 7
-
-class Biome(Enum):
-    WATER = 0
-    DESERT = 1
-    PLAINS = 2
-    FOREST = 3
-    TUNDRA = 4
-    MOUNTAINS = 5
-    
-biome_dict = {
-    'water': Biome.WATER,
-    'desert': Biome.DESERT,
-    'plains': Biome.PLAINS,
-    'forest': Biome.FOREST,
-    'tundra': Biome.TUNDRA,
-    'mountains': Biome.MOUNTAINS,
-}
-    
 class BiomeMask():
-    
     def __init__(self, size):
         self.width = size
         self.height = size
@@ -78,21 +55,20 @@ def create_biome_mask(size, user_params):
             return None
         
     return mask 
+
         
         
 if __name__ == "__main__":
     print(f"Creating a biome mask")
-    # b_mask = BiomeMask(EXTRA_SMALL_MAP)
-    # b_mask = BiomeMask(SMALL_MAP)
-    print(f"Displaying biome mask")
-    # print(b_mask.print_mask())
     
     user_params = {'north': 'desert',
                    'south': 'mountains',
+                   'southwest': 'desert',
                    'center': 'forest'}
-    b_mask = create_biome_mask(SMALL_MAP, user_params)
-    print_mask(b_mask)
-    print(Biome(1))
+    b_mask = create_biome_mask(MapSizes.SMALL_MAP.value, user_params)
     
-    
-            
+    print(f"Displaying base biome mask")
+    print_grid(b_mask)
+       
+    print(f"Displaying final biome mask")
+    print_grid(b_mask)

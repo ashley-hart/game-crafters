@@ -1,7 +1,10 @@
 import numpy as np
 import random
-from biome_mask import Biome
+from biome_mask import create_biome_mask
+from world_config import Biome, MapSizes
+from utility_methods import print_grid
 
+# ! do i still need this
 biome_roughness = {
     'water': 0.0, # What would a good roughness value be for this? 
     'desert': 0.1,
@@ -18,6 +21,8 @@ biome_roughness = {
     Biome.MOUNTAINS: 0.6
 }
 
+# These "force" certain biomes to have variation around certain height values.
+# The amount of variation is captured by the roughness value.
 biome_height_offsets = {
     Biome.WATER: -0.2, # What would a good roughness value be for this? 
     Biome.DESERT: 0.3,
@@ -26,9 +31,10 @@ biome_height_offsets = {
     Biome.MOUNTAINS: 0.9
 }
 
-# Generates a heightmap using the Diamond Square algorithim
+# Do diamond square map gen with respect to the biome mask.
 def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_height_offset=0.1):
     grid = np.zeros((size, size))
+    print(f"size = {size}")
     
     # Init corners
     grid[0, 0] = grid[0, -1] = grid[-1, 0] = grid[-1, -1] = random.uniform(0, 1)
@@ -44,21 +50,9 @@ def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_h
     while step_size > 1:
         half_step = step_size // 2
         
-        # # Square step
-        # for x in range(0, size - 1, step_size):
-        #     for y in range(0, size - 1, step_size):
-        #         displace(x, y, x + step_size, y + step_size, variance)
-
-        # # Diamond step
-        # for x in range(0, size, half):
-        #     for y in range((x + half) % step_size, size, step_size):
-        #         avg = np.mean([grid[(x - half) % size, y], grid[(x + half) % size, y],
-        #                     grid[x, (y - half) % size], grid[x, (y + half) % size]])
-        #         grid[x, y] = avg + random.uniform(-variance, variance)
-        
-        # Diamond Step
-        # Check the biome and then perform the diamond step with the 
+        # Check the biome map and then perform the diamond & square steps with the 
         # parameters for that biome
+        # Diamond Step
         for x in range (0, size - 1, step_size):
             for y in range(0, size - 1, step_size):
                 biome = biome_mask[x + half_step, y + half_step]
@@ -78,11 +72,11 @@ def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_h
         step_size = half_step
         iteration_num += 1
         
-        # Normalize array
+        # Normalize array - 
+        # Ashley: I'm still looking into how normalization impacts the final outcome. 
         # min_val = np.min(grid)
         # max_val = np.max(grid)
         # grid = (grid - min_val) / (max_val - min_val)
-
     return grid
 
 
@@ -109,13 +103,6 @@ def square_step(grid, x, y, step, roughness, map_size, biome_height_offset):
         neighbors.append(grid[x, y + step])
     avg = np.mean(neighbors)
     grid[x, y] = avg + np.random.uniform(-roughness, roughness) + biome_height_offset
-
-
-def in_bounds(grid, index):
-    if (index < 0) or (index > grid.length()):
-        return False
-    return True
-    
 
 
 # Generates a heightmap using the Diamond Square algorithim
@@ -152,3 +139,62 @@ def generate_heightmap(size, roughness):
         iteration_num += 1
 
     return grid
+
+
+# Smooth out the biomes to make them less blocky
+def smooth_biome_transitions(biome_mask, height_map, smoothing_radius=1):
+    size = biome_mask.shape[0]
+    smoothed_height_map = height_map.copy() # prep the output map
+    
+    for y in range(size):
+        for x in range(size):
+            # Collect neighboring heights and biome types
+            heights = []
+            for dy in range(-smoothing_radius, smoothing_radius + 1):
+                for dx in range(-smoothing_radius, smoothing_radius + 1):
+                    ny, nx = y + dy, x + dx
+                    if 0 <= ny < size and 0 <= nx < size:
+                        if biome_mask[ny][nx] == biome_mask[y][x]:
+                            heights.append(height_map[ny][nx])
+            # Average height for smoothing
+            if heights:
+                smoothed_height_map[y][x] = sum(heights) / len(heights)
+    return smoothed_height_map
+
+def enforce_generation_rules():
+    pass
+
+
+# HELPER METHODS
+# ================
+# Unused helper
+def in_bounds(grid, index):
+    if (index < 0) or (index > grid.length()):
+        return False
+    return True
+    
+    
+if __name__ == "__main__":
+    print(f"Creating a biome mask")
+    
+    user_params = {'north': 'desert',
+                   'south': 'mountains',
+                   'southwest': 'desert',
+                   'center': 'forest'}
+    b_mask = create_biome_mask(MapSizes.SMALL_MAP.value, user_params)
+    
+    print(f"Displaying base biome mask")
+    print_grid(b_mask)
+    
+    print("Generating heightmap")
+    hm = generate_heightmap_w_biome_mask(b_mask.shape[0], b_mask)
+    
+    print("Displaying heightmap")
+    print_grid(hm)
+    
+    print(f"Smoothing biome tranisitons")
+    smoothed_hm = smooth_biome_transitions(b_mask, hm)
+            
+    print(f"Displaying final height map")
+    print_grid(smoothed_hm)
+    # print_grid(b_mask)
