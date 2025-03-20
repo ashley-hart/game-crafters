@@ -1,7 +1,6 @@
 # Midpoint Displacement + Cellular Automata
 import numpy as np
-import random
-from ascii_tile import ASCIITile, water_tile, mountain_tile, plains_tile, desert_tile, forest_tile, pines_tile, lava_tile, snow_tile
+from ascii_tile import water_tile, mountain_tile, plains_tile, desert_tile, forest_tile, pines_tile, lava_tile, snow_tile
 
 from biome_mask import create_biome_mask, print_mask
 from diamond_square import generate_heightmap_w_biome_mask, smooth_biome_transitions
@@ -18,14 +17,17 @@ TERRAIN_CHARS = {
 
 class WorldGenerator():
     
-    def __init__(self, map_size, user_params, roughness=0.5, display_mode=DisplayMode.ASCII_MODE):
+    def __init__(self, map_size, user_params, roughness=0.5, display_mode=DisplayMode.ASCII_MODE, seed=None):
         self.map_size = map_size.value
         self.base_roughness = roughness
         self.user_params = user_params
         self.display_mode = display_mode
+        self.seed = seed
         
-        print(f"Creating a world with dimensions: {self.map_size}x{self.map_size}")
-        print(f"Creating a world with user_params: {self.user_params}")
+        print(f"Creating a new world")
+        print(f"Map dimensions: {self.map_size}x{self.map_size}")
+        print(f"Inspired by the following user_params: {self.user_params}")
+        print(f"Generator Seed: {self.seed}")
  
     # TODO: Move this to a map renderer class.
     def heightmap_to_ascii(self, grid):
@@ -72,7 +74,7 @@ class WorldGenerator():
         # heightmap = self.generate_heightmap(roughness)
         
         print("Generating heightmap w/ biome mask")
-        height_map = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness)
+        height_map = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness, seed=self.seed)
         print_grid(height_map)
         
         for row in height_map:
@@ -96,6 +98,7 @@ class WorldGenerator():
         # ======================
         # Map heightmap values to ASCII chars
         ascii_world = self.heightmap_to_ascii(smoothed_hm)
+        # ascii_world = self.heightmap_to_ascii(height_map)
         
         # TODO: Add map frame
 
