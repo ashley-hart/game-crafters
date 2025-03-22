@@ -1,6 +1,4 @@
 from enum import Enum
-from ascii_tile import water_tile, mountain_tile, plains_tile, forest_tile, pines_tile, lava_tile, snow_tile
-
 
 EXTRA_SMALL_MAP = 9 # n = 3
 SMALL_MAP = 17 # n = 4
@@ -27,6 +25,14 @@ class Biome(Enum):
     TUNDRA = 4
     MOUNTAINS = 5
     
+# ASCII terrain mapping
+TERRAIN_CHARS = {
+    "water": "~",
+    "grass": ".",
+    "hills": "n",
+    "mountains": "^"
+}
+    
 biome_dict = {
     'water': Biome.WATER,
     'desert': Biome.DESERT,
@@ -49,16 +55,6 @@ color_dict = {"red": (169, 50, 38),
               "desert_yellow": (254, 207, 71),
               "pink": (254, 137, 236)
               }
-
-# ascii_color_map = {
-#     lava_tile: color_dict["red"],
-#     water_tile: color_dict["blue"],
-#     snow_tile: color_dict["white"],
-#     mountain_tile: color_dict["gray"],
-#     plains_tile: color_dict["light_yellow"],
-#     pines_tile: color_dict["green"],
-#     forest_tile: color_dict["dark_green"],
-# }
 
 # Bridge from ASCII char to an RGB tuple. I formatted it this way for readability.
 ascii_color_map = {

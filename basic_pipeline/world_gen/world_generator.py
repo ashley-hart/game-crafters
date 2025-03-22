@@ -1,19 +1,10 @@
 # Midpoint Displacement + Cellular Automata
 import numpy as np
 from ascii_tile import water_tile, mountain_tile, plains_tile, desert_tile, forest_tile, pines_tile, lava_tile, snow_tile
-
 from biome_mask import create_biome_mask, print_mask
 from diamond_square import generate_heightmap_w_biome_mask, smooth_biome_transitions
 from utility_methods import print_grid
 from world_config import DisplayMode, MapSizes
-
-# ASCII terrain mapping
-TERRAIN_CHARS = {
-    "water": "~",
-    "grass": ".",
-    "hills": "n",
-    "mountains": "^"
-}
 
 class WorldGenerator():
     
@@ -85,7 +76,6 @@ class WorldGenerator():
         print("Smoothing heightmap for nicer biome transitions")
         smoothed_hm = smooth_biome_transitions(biome_mask, height_map)
         print_grid(smoothed_hm)
-
         
         # POST-PROCESSING
         # ======================
@@ -107,7 +97,7 @@ class WorldGenerator():
             for tile in row:
                 print(tile.symbol, end="")
             print()
-        
+
         return ascii_world
 
 
