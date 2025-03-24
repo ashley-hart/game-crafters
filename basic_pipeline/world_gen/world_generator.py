@@ -52,11 +52,10 @@ class WorldGenerator():
         # TODO: Set global world parameters & and biome frequencies, then set explitly defined biomes 
         
         print("Creating biome mask")
-        print("Using sample params... delete these later")
         biome_mask = create_biome_mask(self.map_size, self.user_params)
         
         print("Printing biome mask")
-        print_grid(biome_mask)
+        # print_grid(biome_mask)
         
         # HEIGHTMAP GENERATION
         # ======================
@@ -66,16 +65,16 @@ class WorldGenerator():
         
         print("Generating heightmap w/ biome mask")
         height_map = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness, seed=self.seed)
-        print_grid(height_map)
+        # print_grid(height_map)
         
-        for row in height_map:
-            print("".join("{:.1f}, ".format(val) for val in row))
+        # for row in height_map:
+        #     print("".join("{:.1f}, ".format(val) for val in row))
         
         # PRE-PROCESSING (Post-Heightmap)
         # ===============================
         print("Smoothing heightmap for nicer biome transitions")
         smoothed_hm = smooth_biome_transitions(biome_mask, height_map)
-        print_grid(smoothed_hm)
+        # print_grid(smoothed_hm)
         
         # POST-PROCESSING
         # ======================

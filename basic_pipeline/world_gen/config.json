@@ -1,0 +1,9 @@
+{
+    "size": "XL",
+    "seed": 42,
+    "biome_map": {
+        "north": "desert",
+        "south": "taiga",
+        "center": "plains"
+    }
+}

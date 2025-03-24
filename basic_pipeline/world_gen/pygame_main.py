@@ -1,18 +1,17 @@
 import pygame
 import sys
+import json
 from world_config import MapSizes, ascii_color_map
 from world_generator import WorldGenerator
 from world_config import DisplayMode
 
-# TODO: rename ascii_map to world map
-def draw_tilemap(window, ascii_map, tile_size, font, display_mode, generate_image=False, filename=None):
-    # TODO: Add frame.
-    for y, row in enumerate(ascii_map):
+def draw_tilemap(window, world_map, tile_size, font, display_mode, generate_image=False, filename=None):
+    for y, row in enumerate(world_map):
         for x, tile in enumerate(row):
             
             color = ascii_color_map.get(tile.raw_symbol, (255, 255, 255)) # set color
             
-            image_surface = pygame.Surface((len(ascii_map) * tile_size, len(ascii_map) * tile_size))
+            image_surface = pygame.Surface((len(world_map) * tile_size, len(world_map) * tile_size))
             
             if display_mode == DisplayMode.ASCII_MODE:
                 text_surface = font.render(tile.raw_symbol, True, color)
@@ -68,9 +67,26 @@ def generate_many_worlds(num_worlds, map_size, display_mode, generate_image=True
 
 # -------
 
+def load_json_config(json_file):
+    """ Load JSON configuration for the world generator. """
+    try:
+        with open(json_file, 'r') as f:
+            config = json.load(f)
+        print(f"Loaded JSON config from {json_file}")
+        return config
+    except Exception as e:
+        print(f"Error loading JSON: {e}")
+        return None
+
+
 
 def main():
-
+    
+    silent = True
+    
+    json_config = load_json_config("config.json")
+    print(json_config)
+    
     # TODO: Handle User input
     # TODO: Pass in any settings for the map from the cmd line or future UI here.
     user_params = {'north': 'plains',
@@ -80,10 +96,7 @@ def main():
                     "northwest": 'plains',
                     "southwest": 'water',
                     'center': 'plains'}
-
-    # Set up Pygame Display
-    pygame.init()
-
+    
     # Display Settings 
     tile_size = 24
     cols, rows = None, None # need to get these from the ASCII map.
@@ -96,41 +109,44 @@ def main():
     # generate_image = False
     filename = "temp_filename.png"
     seed = "apples"
-    map_generator = WorldGenerator(MapSizes.SMALL_MAP, user_params, display_mode=map_display_mode, seed=seed)
-    ascii_map = map_generator.create_world(roughness=1)
-    print(f"Type of ASCII Map: {type(ascii_map)}")
-
+    map_generator = WorldGenerator(MapSizes.MEDIUM_MAP, user_params, display_mode=map_display_mode, seed=seed)
+    world_map = map_generator.create_world(roughness=1)
+    
     if generate_image:
-        save_tilemap_to_png(ascii_map, tile_size, ascii_color_map, display_mode=map_display_mode, filename=filename)
+        save_tilemap_to_png(world_map, tile_size, ascii_color_map, display_mode=map_display_mode, filename=filename)
         
-    # Font Settings (Use a monospaced font)
-    font_size = 16
-    font = pygame.font.SysFont('Consolas', 30)
+    if silent == False:
+        # Set up Pygame Display
+        pygame.init()
 
-    window_width = tile_size * map_generator.map_size + 1
-    window_height = tile_size * map_generator.map_size + 1
-    window = pygame.display.set_mode((window_width, window_height), pygame.RESIZABLE)
-    pygame.display.set_caption('ASCII World Generator')
+        # Font Settings (Use a monospaced font)
+        font_size = 16
+        font = pygame.font.SysFont('Consolas', 30)
 
-    # Remember: Not using fill will cause the game to write 
-    # frames on top of old ones. Not a desirable effect. 
-    # Is there a better way to manage colors in PyGame?
-    background_color = (0, 0, 0)
-    window.fill(background_color)
+        window_width = tile_size * map_generator.map_size + 1
+        window_height = tile_size * map_generator.map_size + 1
+        window = pygame.display.set_mode((window_width, window_height), pygame.RESIZABLE)
+        pygame.display.set_caption('ASCII World Generator')
 
-    # Game Loop, running kicks off the loop and sustains it until QUIT event.
-    running = True
-    while running:
-        window.fill((0,0,0))
-        draw_tilemap(window, ascii_map, tile_size, font, map_display_mode)
-        pygame.display.flip()
-        
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                running = False
-                
-    pygame.quit()
-    sys.exit() 
+        # Remember: Not using fill will cause the game to write 
+        # frames on top of old ones. Not a desirable effect. 
+        # Is there a better way to manage colors in PyGame?
+        background_color = (0, 0, 0)
+        window.fill(background_color)
+
+        # Game Loop, running kicks off the loop and sustains it until QUIT event.
+        running = True
+        while running:
+            window.fill((0,0,0))
+            draw_tilemap(window, world_map, tile_size, font, map_display_mode)
+            pygame.display.flip()
+            
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    running = False
+                    
+        pygame.quit()
+        sys.exit() 
     
 # TODO: Add input parsing here.
 if __name__ == "__main__":
