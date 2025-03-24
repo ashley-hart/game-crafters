@@ -103,12 +103,9 @@ class WorldGenerator():
 # Call this file from the cmd line only when testing. Otherwise, 
 # call pygame_main.py for the full UI display.
 if __name__ == "__main__":
-    print("\033[38;2;64;244;208m World Generator\033[0m") # RGC Color Test
-    print("\033[38;2;64;244;208m=================\033[0m") # RGC Color Test
+    # print("\033[38;2;64;244;208m World Generator\033[0m")
+    # print("\033[38;2;64;244;208m=================\033[0m")
     
-    # user_params = {'north': 'desert',
-    #             'south': 'mountains',
-    #             'center': 'forest'}
     user_params = {'north': 'water',
                 'south': 'mountains',
                 'center': 'water'}

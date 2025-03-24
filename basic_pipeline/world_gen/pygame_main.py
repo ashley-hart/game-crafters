@@ -27,6 +27,7 @@ def draw_tilemap(window, world_map, tile_size, font, display_mode, generate_imag
                 pygame.image.save(image_surface, filename)
                 generate_image = False
 
+
 def save_tilemap_to_png(tilemap, tile_size, color_mapping, display_mode, filename="tilemap.png"):
     
     rows, cols = len(tilemap), len(tilemap[0])
@@ -81,11 +82,15 @@ def load_json_config(json_file):
 
 
 def main():
+    print("\033[38;2;64;244;208m ProcPainter - A World Generator\033[0m")
+    print("\033[38;2;64;244;208m=================================\033[0m")
     
-    silent = True
+    # silent = True
+    silent = False
     
     json_config = load_json_config("config.json")
     print(json_config)
+    print(json_config["biomes"])
     
     # TODO: Handle User input
     # TODO: Pass in any settings for the map from the cmd line or future UI here.
@@ -106,10 +111,27 @@ def main():
     # map_display_mode = DisplayMode.ASCII_MODE
     map_display_mode = DisplayMode.PIXEL_MODE
     generate_image = True
-    # generate_image = False
+    
+    
+    generate_image = False
     filename = "temp_filename.png"
-    seed = "apples"
-    map_generator = WorldGenerator(MapSizes.MEDIUM_MAP, user_params, display_mode=map_display_mode, seed=seed)
+    
+    # If there is one, grab and pass on an INTEGER seed from the JSON
+    # to the world generator
+    wg_seed = None # world generator seed
+    try: 
+        if json_config["seed"] and int(json_config["seed"]):
+            wg_seed = json_config["seed"]
+    except(KeyError): 
+        print("ERROR: Seed not specified or invalid in the provided JSON input.")
+        print("World will be generated WITHOUT a seed.")
+        wg_seed = None
+    except(ValueError):
+        print("ERROR: Seed is not a valid data type. Please provide an integer.")
+        print("World will be generated WITHOUT a seed.")
+        
+    map_generator = WorldGenerator(MapSizes.SMALL_MAP, json_config["biomes"], display_mode=map_display_mode, seed=wg_seed)
+    # map_generator = WorldGenerator(MapSizes.MEDIUM_MAP, user_params, display_mode=map_display_mode, seed=seed)
     world_map = map_generator.create_world(roughness=1)
     
     if generate_image:

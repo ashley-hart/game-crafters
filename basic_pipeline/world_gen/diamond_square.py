@@ -33,37 +33,16 @@ biome_height_offsets = {
 
 # Do diamond square map gen with respect to the biome mask.
 def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_height_offset=0.1, seed=None):
-    
     if seed:
-        # The code below uses the RNGs from Python and NumPy. They
-        # will use the same deed fo
-        print("Seed being used is =", (hash(seed) % 2**31))
-        hash_val = (hash(seed) % 2**31)
-        random.seed(hash_val)
-        
-        # TODO: Look into just using either Python OR the Numpy RNGs for this
-        
-        # You can create domestic numpy RNGs to distingush 
-        # random processes from one another if desired. 
-        rng = np.random.default_rng(hash_val)
-        
-        # if isinstance(seed, str): # hash strings to make them ints first
-        #     print("Seed string-to-int hash =", hash(seed))
-        #     # hash_val = hash(seed) % 10**8
-        #     # np.random.seed(hash(seed))  # Seed NumPy's random
-        #     np.random.default_rng(hash(seed))
-        #     random.seed(seed)
-        # elif isinstance(seed, int):
-        #     np.random.seed(seed)  # Seed NumPy's random
-        #     random.seed(seed)
-        # else: 
-        #     print("Error: Invalid seed provided, \"{seed}\". Please pass in an alphanumeric string or an int.")
-                    
+        print(f"Generating heightmap with seed = ", seed)
+        rng = np.random.default_rng(seed)
+    else:       
+        rng = np.random.default_rng()
     grid = np.zeros((size, size))
     print(f"size = {size}")
     
     # Init corners
-    grid[0, 0] = grid[0, -1] = grid[-1, 0] = grid[-1, -1] = random.uniform(0, 1)
+    grid[0, 0] = grid[0, -1] = grid[-1, 0] = grid[-1, -1] = rng.uniform(0, 1)
 
     step_size = size - 1 # start big, then get smaller.
     iteration_num = 1
