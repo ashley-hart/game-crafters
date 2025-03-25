@@ -2,11 +2,16 @@ import json
 import tcod as libtcod
 import time
 import cProfile
+import argparse
 
-name = "config"
+parser = argparse.ArgumentParser(description='World generation simulator')
+parser.add_argument('--display', action='store_true', help='Display the world on screen')
+parser.add_argument('--config', type=str, default='trail.json', help='Path to configuration JSON file')
+parser.add_argument('--output', type=str, help='Base name for output files (without extension)')
+args = parser.parse_args()
 
 # Load configuration from JSON file
-with open(name+".json", "r") as f:
+with open(args.config, "r") as f:
     config = json.load(f)
 
 # Global Parameters from config
@@ -656,19 +661,20 @@ def BiomeMap(Chars, Colors):
         for y in range(WORLD_HEIGHT):
             # Store the character for file output
             if isinstance(Chars[x][y], int):
-                # Convert integer codes to their ASCII representation
                 map_chars[x][y] = chr(Chars[x][y])
             else:
                 map_chars[x][y] = Chars[x][y]
                 
-            # Display on screen as before
-            libtcod.console_put_char_ex(0, x, y + SCREEN_HEIGHT // 2 - WORLD_HEIGHT // 2, 
-                                       Chars[x][y], Colors[x][y], libtcod.black)
+            # Only display if --display flag is set
+            if args.display:
+                libtcod.console_put_char_ex(0, x, y + SCREEN_HEIGHT // 2 - WORLD_HEIGHT // 2, 
+                                           Chars[x][y], Colors[x][y], libtcod.black)
     
-    libtcod.console_flush()
+    if args.display:
+        libtcod.console_flush()
     
     # Export to text file
-    export_to_file(name+".txt", map_chars)
+    export_to_file("biome_map.txt", map_chars)
     
     return
 
@@ -787,35 +793,43 @@ def NormalMap(World):
     return Chars, Colors
 
 def export_to_file(filename, map_chars):
-    """
-    Export a 2D array of characters to a text file.
+    # Use custom output name if provided, otherwise use the default with timestamp
+    timestamp = time.strftime('%Y%m%d_%H%M%S')
     
-    Args:
-        filename (str): The name of the file to create
-        map_chars (list): 2D array of characters representing the map
-    """
-    with open(filename, 'w') as f:
+    if args.output:
+        base_name = args.output
+        # If output doesn't include file type, use the original filename's type
+        if '.' not in base_name:
+            output_filename = f"{base_name}"
+        else:
+            output_filename = base_name
+    else:
+        output_filename = f"{filename.split('.')[0]}_{timestamp}.txt"
+    
+    with open(output_filename, 'w') as f:
         # Add a timestamp and information header
         # f.write(f"# Map generated on {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        # f.write(f"# World size: {WORLD_WIDTH}x{WORLD_HEIGHT}\n\n")
+        # f.write(f"# World size: {WORLD_WIDTH}x{WORLD_HEIGHT}\n")
+        # f.write(f"# Generated from config: {args.config}\n\n")
         
-        # Write the map by rows (transpose x,y for natural reading)
+        # Write the map by rows
         for y in range(WORLD_HEIGHT):
             row = ""
             for x in range(WORLD_WIDTH):
                 row += map_chars[x][y]
             f.write(row + '\n')
-    
-    print(f"Map exported to {filename}_{time.strftime('%Y-%m-%d_%H:%M:%S')}")
     return
 
 ################################################################################
 #                              STARTUP                                         #
 ################################################################################
 
-# Set custom font and initialize console
-libtcod.console_set_custom_font("Andux_cp866ish.png", libtcod.FONT_LAYOUT_ASCII_INROW)
-libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'pyWorld', False, libtcod.RENDERER_SDL)
+# Only initialize the display if the --display argument is set
+if args.display:
+    # Set custom font and initialize console
+    libtcod.console_set_custom_font("Andux_cp866ish.png", libtcod.FONT_LAYOUT_ASCII_INROW)
+    libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'pyWorld', False, libtcod.RENDERER_SDL)
+
 
 # Palette (example colors)
 Palette = [
@@ -844,56 +858,71 @@ BiomeMap(Chars, Colors)
 Month = 0
 Wars = []
 Wars.clear()
-
-# Main simulation loop
-while not libtcod.console_is_window_closed():
-    while isRunning:
-        ProcessCivs(World, Civs, Chars, Colors, Month)
-        Month += 1
-        print(f'Month: {Month}')
-        libtcod.console_check_for_keypress(True)
+if args.display:
+    # Main simulation loop
+    while not libtcod.console_is_window_closed():
+        while isRunning:
+            ProcessCivs(World, Civs, Chars, Colors, Month)
+            Month += 1
+            print(f'Month: {Month}')
+            libtcod.console_check_for_keypress(True)
+            if libtcod.console_is_key_pressed(libtcod.KEY_SPACE):
+                isRunning = False
+                print("*PAUSED*")
+                time.sleep(1)
+            if needUpdate:
+                BiomeMap(Chars, Colors)
+                needUpdate = False
+        key = libtcod.console_wait_for_keypress(True)
         if libtcod.console_is_key_pressed(libtcod.KEY_SPACE):
-            isRunning = False
-            print("*PAUSED*")
+            isRunning = True
+            print("*RUNNING*")
             time.sleep(1)
-        if needUpdate:
-            BiomeMap(Chars, Colors)
-            needUpdate = False
-    key = libtcod.console_wait_for_keypress(True)
-    if libtcod.console_is_key_pressed(libtcod.KEY_SPACE):
-        isRunning = True
-        print("*RUNNING*")
-        time.sleep(1)
-    if libtcod.console_is_key_pressed(libtcod.KEY_ESCAPE):
-        isRunning = False
-        pr.disable()
-        pr.print_stats(sort='time')
-    if key.vk == libtcod.KEY_CHAR:
-        if key.c == ord('t'):
-            TerrainMap(World)
-        elif key.c == ord('h'):
-            HeightGradMap(World)
-        elif key.c == ord('w'):
-            TempGradMap(World)
-        elif key.c == ord('p'):
-            PrecipGradMap(World)
-        elif key.c == ord('d'):
-            DrainageGradMap(World)
-        elif key.c == ord('f'):
-            ProsperityGradMap(World)
-        elif key.c == ord('b'):
-            BiomeMap(Chars, Colors)
-        elif key.c == ord('r'):
-            print("\n" * 100)
-            print(" * NEW WORLD *")
-            Month = 0
-            Wars.clear()
-            World = MasterWorldGen()
-            Races = ReadRaces()
-            Govern = ReadGovern()
-            Civs = CivGen(Races, Govern)
-            Chars, Colors = NormalMap(World)
-            SetupCivs(Civs, World, Chars, Colors)
-            BiomeMap(Chars, Colors) 
-        elif key.c == ord('q'):
-            break
+        if libtcod.console_is_key_pressed(libtcod.KEY_ESCAPE):
+            isRunning = False
+            pr.disable()
+            pr.print_stats(sort='time')
+        if key.vk == libtcod.KEY_CHAR:
+            if key.c == ord('t'):
+                TerrainMap(World)
+            elif key.c == ord('h'):
+                HeightGradMap(World)
+            elif key.c == ord('w'):
+                TempGradMap(World)
+            elif key.c == ord('p'):
+                PrecipGradMap(World)
+            elif key.c == ord('d'):
+                DrainageGradMap(World)
+            elif key.c == ord('f'):
+                ProsperityGradMap(World)
+            elif key.c == ord('b'):
+                BiomeMap(Chars, Colors)
+            elif key.c == ord('r'):
+                print("\n" * 100)
+                print(" * NEW WORLD *")
+                Month = 0
+                Wars.clear()
+                World = MasterWorldGen()
+                Races = ReadRaces()
+                Govern = ReadGovern()
+                Civs = CivGen(Races, Govern)
+                Chars, Colors = NormalMap(World)
+                SetupCivs(Civs, World, Chars, Colors)
+                BiomeMap(Chars, Colors) 
+            elif key.c == ord('q'):
+                break
+
+else:
+    # Non-interactive mode - just generate all maps and exit
+    print("Running in non-interactive mode. Generating maps...")
+    
+    # Generate all map types
+    TerrainMap(World)
+    HeightGradMap(World)
+    TempGradMap(World)
+    PrecipGradMap(World)
+    DrainageGradMap(World)
+    ProsperityGradMap(World)
+    BiomeMap(Chars, Colors)
+    
+    print("All maps generated successfully. Exiting...") 

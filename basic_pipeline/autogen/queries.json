@@ -1,0 +1,54 @@
+{
+  "queries": [
+    {
+      "id": 1,
+      "query": "Create a world with 10 islands, each with a unique biome and terrain type. Include mountains, rivers, and forests.",
+      "output_file": "output_world_1.json"
+    },
+    {
+      "id": 2,
+      "query": "Generate a world with 5 continents, each with its own climate and geography. Include deserts, tundras, and jungles.",
+      "output_file": "output_world_2.json"
+    },
+    {
+      "id": 3,
+      "query": "Design a world with a central ocean and several archipelagos. Include underwater features like trenches and reefs.",
+      "output_file": "output_world_3.json"
+    },
+    {
+      "id": 4,
+      "query": "Create a world with a single supercontinent surrounded by a vast ocean. Include diverse ecosystems and climates.",
+      "output_file": "output_world_4.json"
+    },
+    {
+      "id": 5,
+      "query": "Generate a world with a polar region and a tropical region. Include unique flora and fauna for each zone.",
+      "output_file": "output_world_5.json"
+    },
+    {
+      "id": 6,
+      "query": "Design a world with a large mountain range and several valleys. Include rivers that flow from the mountains to the sea.",
+      "output_file": "output_world_6.json"
+    },
+    {
+      "id": 7,
+      "query": "Create a world with a volcanic island and surrounding coral reefs. Include unique geological features and ecosystems.",
+      "output_file": "output_world_7.json"
+    },
+    {
+      "id": 8,
+      "query": "Generate a world with a series of plateaus and canyons. Include unique rock formations and desert landscapes.",
+      "output_file": "output_world_8.json"
+    },
+    {
+      "id": 9,
+      "query": "Design a world with a large lake and several rivers flowing into it. Include wetlands and marshes around the lake.",
+      "output_file": "output_world_9.json"
+    },
+    {
+      "id": 10,
+      "query": "Create a world with a series of islands. Include unique cultures and civilizations on each island.",
+      "output_file": "output_world_10.json"
+    }
+  ]
+}
