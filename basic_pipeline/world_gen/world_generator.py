@@ -29,7 +29,7 @@ class WorldGenerator():
             for val in row:
                 if val < 0.2:
                     line.append(water_tile)
-                elif val < 0.5:
+                elif val < 0.4:
                     line.append(desert_tile)
                 elif val < 0.7:
                     line.append(plains_tile)
@@ -52,11 +52,10 @@ class WorldGenerator():
         # TODO: Set global world parameters & and biome frequencies, then set explitly defined biomes 
         
         print("Creating biome mask")
-        print("Using sample params... delete these later")
         biome_mask = create_biome_mask(self.map_size, self.user_params)
         
         print("Printing biome mask")
-        print_grid(biome_mask)
+        # print_grid(biome_mask)
         
         # HEIGHTMAP GENERATION
         # ======================
@@ -66,16 +65,16 @@ class WorldGenerator():
         
         print("Generating heightmap w/ biome mask")
         height_map = generate_heightmap_w_biome_mask(self.map_size, biome_mask, roughness, seed=self.seed)
-        print_grid(height_map)
+        # print_grid(height_map)
         
-        for row in height_map:
-            print("".join("{:.1f}, ".format(val) for val in row))
+        # for row in height_map:
+        #     print("".join("{:.1f}, ".format(val) for val in row))
         
         # PRE-PROCESSING (Post-Heightmap)
         # ===============================
         print("Smoothing heightmap for nicer biome transitions")
         smoothed_hm = smooth_biome_transitions(biome_mask, height_map)
-        print_grid(smoothed_hm)
+        # print_grid(smoothed_hm)
         
         # POST-PROCESSING
         # ======================
@@ -104,12 +103,9 @@ class WorldGenerator():
 # Call this file from the cmd line only when testing. Otherwise, 
 # call pygame_main.py for the full UI display.
 if __name__ == "__main__":
-    print("\033[38;2;64;244;208m World Generator\033[0m") # RGC Color Test
-    print("\033[38;2;64;244;208m=================\033[0m") # RGC Color Test
+    # print("\033[38;2;64;244;208m World Generator\033[0m")
+    # print("\033[38;2;64;244;208m=================\033[0m")
     
-    # user_params = {'north': 'desert',
-    #             'south': 'mountains',
-    #             'center': 'forest'}
     user_params = {'north': 'water',
                 'south': 'mountains',
                 'center': 'water'}

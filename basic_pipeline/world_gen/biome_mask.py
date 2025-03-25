@@ -28,7 +28,7 @@ def create_biome_mask(size, user_params):
     
     for region, biome in user_params.items():
         
-        print(f"Creating biome mask for {{ {region}, {biome} }}...")
+        # print(f"Creating biome mask for {{ {region}, {biome} }}...")
         
         if region == 'north':
             mask[:size//3, :] = biome_dict[biome]

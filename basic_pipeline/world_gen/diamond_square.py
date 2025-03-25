@@ -33,15 +33,16 @@ biome_height_offsets = {
 
 # Do diamond square map gen with respect to the biome mask.
 def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_height_offset=0.1, seed=None):
-    
     if seed:
-        random.seed(seed)
-        
+        print(f"Generating heightmap with seed = ", seed)
+        rng = np.random.default_rng(seed)
+    else:       
+        rng = np.random.default_rng()
     grid = np.zeros((size, size))
     print(f"size = {size}")
     
     # Init corners
-    grid[0, 0] = grid[0, -1] = grid[-1, 0] = grid[-1, -1] = random.uniform(0, 1)
+    grid[0, 0] = grid[0, -1] = grid[-1, 0] = grid[-1, -1] = rng.uniform(0, 1)
 
     step_size = size - 1 # start big, then get smaller.
     iteration_num = 1
@@ -56,7 +57,7 @@ def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_h
                 biome = biome_mask[x + half_step, y + half_step]
                 roughness = biome_roughness.get(Biome(biome), base_roughness)
                 biome_height_offset = biome_height_offsets.get(Biome(biome), base_height_offset)
-                diamond_step(grid, x, y, step_size, roughness, biome_height_offset)
+                diamond_step(grid, x, y, step_size, roughness, biome_height_offset, rng)
                 
         # Square step
         for x in range(0, size, half_step):
@@ -64,7 +65,7 @@ def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_h
                 biome = biome_mask[x % size, y % size] # use mod to stay in bounds
                 roughness = biome_roughness.get(Biome(biome), base_roughness)
                 biome_height_offset = biome_height_offsets.get(Biome(biome), base_height_offset)
-                square_step(grid, x, y, step_size, roughness, size,  biome_height_offset)
+                square_step(grid, x, y, step_size, roughness, size,  biome_height_offset, rng)
         
         # Cut the step size in half
         step_size = half_step
@@ -78,22 +79,22 @@ def generate_heightmap_w_biome_mask(size, biome_mask, base_roughness=0.5, base_h
     return grid
 
 
-def diamond_step(grid, x, y, step, roughness, biome_height_offset, seed=None):
+def diamond_step(grid, x, y, step, roughness, biome_height_offset, rng):
     # Take the average value of the 4 corners and assign it to the point in the 
     # middle of the diamond. 
-    if seed:
-        random.seed(seed)
+    # if seed:
+    #     random.seed(seed)
         
     avg = (grid[x, y] + grid[x + step, y] + grid[x, y + step] + grid[x + step, y + step]) / 4.0
-    grid[x + step // 2, y + step // 2] = avg + np.random.uniform(-roughness, roughness) + biome_height_offset
+    grid[x + step // 2, y + step // 2] = avg + rng.uniform(-roughness, roughness) + biome_height_offset
     
     
-def square_step(grid, x, y, step, roughness, map_size, biome_height_offset, seed=None):
+def square_step(grid, x, y, step, roughness, map_size, biome_height_offset, rng):
     # Take the average of the 3-4 points that point out from the point 
     # computed in the diamond step in the 4 cardinal directions. These points 
     # will be the average of all points that surround them in the 4 cardinal directions.
-    if seed:
-        random.seed(seed)
+    # if seed:
+    #     random.seed(seed)
     
     neighbors = []
     if x - step >= 0: # get left pt
@@ -105,7 +106,7 @@ def square_step(grid, x, y, step, roughness, map_size, biome_height_offset, seed
     if y + step < map_size: # get bottom pt
         neighbors.append(grid[x, y + step])
     avg = np.mean(neighbors)
-    grid[x, y] = avg + np.random.uniform(-roughness, roughness) + biome_height_offset
+    grid[x, y] = avg + rng.uniform(-roughness, roughness) + biome_height_offset
 
 
 # Generates a heightmap using the Diamond Square algorithim
