@@ -29,7 +29,7 @@ class WorldGenerator():
             for val in row:
                 if val < 0.2:
                     line.append(water_tile)
-                elif val < 0.5:
+                elif val < 0.4:
                     line.append(desert_tile)
                 elif val < 0.7:
                     line.append(plains_tile)
